@@ -34,6 +34,7 @@ def drawGrid(height, width, blockSize, screen):
 def bombGenerator(maxBombs, xLimit, yLimit):
     bombPOS = []
     while len(bombPOS) < maxBombs:
+        flag = False
         x = random.randint(1, xLimit)
         y = random.randint(1, yLimit)
         bombPOS.append([x,y])
@@ -56,9 +57,11 @@ if __name__ == '__main__':
         pygame.display.set_caption("Minesweeper")
         clock = pygame.time.Clock()
 
+        #bomb stuff
         bombLocations = bombGenerator(10,8,8)
         print(bombLocations)
         print(len(bombLocations))
+
         while running:#gameloop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
