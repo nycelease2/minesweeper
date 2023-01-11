@@ -1,5 +1,6 @@
 #!/bin/python3
 
+from collections import Counter
 import pygame, sys, random
 running = True
 
@@ -25,42 +26,134 @@ def gridPos(mouseposx, mouseposy):
     return gridposition
 
 
-def drawGrid(height, width, blockSize, screen):
+def drawGrid(height, width, blockSize, screen, checkedPlaces, tiles):
+    #drawing grid
     for x in range(0, width, blockSize):
         for y in range(0, height, blockSize):
             rect = pygame.Rect(x, y, blockSize, blockSize)
             pygame.draw.rect(screen, (30,30,30), rect, 1)
 
+    #drawing flag
+    for i in flagLocations:
+        screen.blit(tiles[0], i)
+
+    #drawing numbers on grid
+    for x, num in checkedPlaces.items():
+        x,y = int(str(list(x)[0]-1)+'00'), int(str(list(x)[1]-1)+'00')
+        if num == 0:
+            screen.blit(tiles[9], (x,y))
+        elif num == 1:
+            screen.blit(tiles[1], (x,y))
+        elif num == 2:
+            screen.blit(tiles[2], (x,y))
+        elif num == 3:
+            screen.blit(tiles[3], (x,y))
+        elif num == 4:
+            screen.blit(tiles[4], (x,y))
+        elif num == 5:
+            screen.blit(tiles[5], (x,y))
+        elif num == 6:
+            screen.blit(tiles[6], (x,y))
+        elif num == 7:
+            screen.blit(tiles[7], (x,y))
+        elif num == 8:
+            screen.blit(tiles[8], (x,y))
+
+
+
+
 def bombGenerator(maxBombs, xLimit, yLimit):
     bombPOS = []
     while len(bombPOS) < maxBombs:
-        flag = False
         x = random.randint(1, xLimit)
         y = random.randint(1, yLimit)
         bombPOS.append([x,y])
                 
     return bombPOS
 
+def checkplaces(gridMousePos, gridBombs):
+    placesToCheck=[]
+    noOfBombs = 0
+    for x in [gridMousePos[0]-1, gridMousePos[0], gridMousePos[0]+1]:
+        for y in [gridMousePos[1]-1, gridMousePos[1], gridMousePos[1]+1]:
+            placesToCheck.append((x,y))
+
+    #checking for bombs
+    for i in placesToCheck:
+        try:
+            if gridBombs[i] == 1:
+                noOfBombs += 1
+        except KeyError:
+            pass
+    return noOfBombs
+
+def checkIfWon(flagLocations, gridBombs):
+    gridbombers = {}
+    checker = 0
+    # making a only bombs dictionary
+    for key, value in gridBombs.items():
+        if value == 1:
+            gridbombers[key] = 1
+    print(len(gridbombers))
+
+    #adds 1 to a checker variable each time a flag is correct
+    for key, value in gridbombers.items():
+        for key1, value1 in flagLocations.items():
+            if key == key1:
+                checker += 1
+
+    #if the value of checker variable and length of amount of bombs is same then you have won
+    if checker == len(gridbombers):
+        return True
+    else:
+        return False
+
+
 option = input("easy[1], medium[2], hard[3]: ")
 
 if __name__ == '__main__':
+    #tiles
+    zero = pygame.image.load('../assets/0.png')
+    one = pygame.image.load('../assets/1.png')
+    two = pygame.image.load('../assets/2.png')
+    three = pygame.image.load('../assets/3.png')
+    four = pygame.image.load('../assets/4.png')
+    five = pygame.image.load('../assets/5.png')
+    six = pygame.image.load('../assets/6.png')
+    seven = pygame.image.load('../assets/7.png')
+    eight = pygame.image.load('../assets/8.png')
+    flag = pygame.image.load('../assets/flag.png')
+
+    tiles=[flag, one, two, three, four, five, six, seven, eight, zero]
+
     #EASY MODE
     if option == '1':
         print("gamemode is set to easy")
-        #variables
+        #screen variables
         screen_WIDTH = 800
         screen_HEIGHT = 800
         
+        #grid variables
+        gridBombs = {(x, y): 0 for x in range(1,9) for y in range(1,9)}
+        checkedPlaces = {}
+
+        #flag variables
+        totalFlags = 10
+        flagLocations = {}
+
         #pygame setup
         pygame.init()
         screen = pygame.display.set_mode((screen_HEIGHT, screen_WIDTH))
         pygame.display.set_caption("Minesweeper")
         clock = pygame.time.Clock()
 
-        #bomb stuff
+        for i in tiles:
+            i = i.convert()
+
+        #generate bombs
         bombLocations = bombGenerator(10,8,8)
-        print(bombLocations)
-        print(len(bombLocations))
+        for i in bombLocations:
+            gridBombs[tuple(i)] = 1
 
         while running:#gameloop
             for event in pygame.event.get():
@@ -68,14 +161,39 @@ if __name__ == '__main__':
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x,y = event.pos[0], event.pos[1]
-                    print(f"MOUSEPOS = x: {x}, y: {y}")
-                    print(gridPos(x,y))
+                    gridMousePos = gridPos(x,y)
 
-                #drawing to the screen
-                screen.fill((200,200,200))
-                drawGrid(screen_HEIGHT, screen_WIDTH, 100, screen)
-                pygame.display.update()
+                    if event.button == 1:
+                        if gridBombs[tuple(gridMousePos)] == 1:
+                            print("you hit a bomb!")
+                            # running = False
 
+                        elif gridBombs[tuple(gridMousePos)] == 0:
+                            # getting number of bombs around
+                            checkedPlaces[tuple(gridMousePos)] = checkplaces(gridMousePos, gridBombs)
+
+                    if event.button == 3:
+                        x,y = int(str(gridMousePos[0]-1)+'00'), int(str(gridMousePos[1]-1)+'00')
+                        if (x,y) in flagLocations:
+                            del flagLocations[(x,y)]
+                            totalFlags += 1
+                        elif totalFlags > 0:
+                            totalFlags -= 1
+                            xytuple = (x,y)
+                            flagLocations[xytuple] = 1
+                            if checkIfWon(flagLocations, gridBombs):
+                                print("you won")
+                                running = False
+                        else:
+                            print("you used all flags")
+                            pass
+
+            #drawing to the screen
+            screen.fill((200,200,200))
+            drawGrid(screen_HEIGHT, screen_WIDTH, 100, screen, checkedPlaces, tiles)
+            pygame.display.flip()
+            pygame.display.update()
+                
         pygame.quit()
         sys.exit()
 
