@@ -88,13 +88,13 @@ def checkplaces(gridMousePos, gridBombs):
     return noOfBombs
 
 def checkIfWon(flagLocations, gridBombs):
+    print(flagLocations)
     gridbombers = {}
     checker = 0
     # making a only bombs dictionary
     for key, value in gridBombs.items():
         if value == 1:
             gridbombers[key] = 1
-    print(len(gridbombers))
 
     #adds 1 to a checker variable each time a flag is correct
     for key, value in gridbombers.items():
@@ -103,6 +103,8 @@ def checkIfWon(flagLocations, gridBombs):
                 checker += 1
 
     #if the value of checker variable and length of amount of bombs is same then you have won
+    print(checker)
+    print(len(gridbombers))
     if checker == len(gridbombers):
         return True
     else:
