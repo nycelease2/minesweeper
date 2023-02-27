@@ -8,7 +8,7 @@ def gridPos(mouseposx, mouseposy):
     #convert the mouse position to list
     mouseposxLIST = [int(x) for x in str(mouseposx)]
     mouseposyLIST = [int(x) for x in str(mouseposy)]
-    
+
     gridposition = []
 
     #append x grid value
@@ -16,7 +16,7 @@ def gridPos(mouseposx, mouseposy):
         gridposition.append(1)
     else:
         gridposition.append(mouseposxLIST[0]+1)
-    
+
     #append y grid value
     if len(mouseposyLIST) < 3:
         gridposition.append(1)
@@ -68,7 +68,7 @@ def bombGenerator(maxBombs, xLimit, yLimit):
         x = random.randint(1, xLimit)
         y = random.randint(1, yLimit)
         bombPOS.append([x,y])
-                
+
     return bombPOS
 
 def checkplaces(gridMousePos, gridBombs):
@@ -134,7 +134,7 @@ if __name__ == '__main__':
         #screen variables
         screen_WIDTH = 800
         screen_HEIGHT = 800
-        
+
         #grid variables
         gridBombs = {(x, y): 0 for x in range(1,9) for y in range(1,9)}
         checkedPlaces = {}
@@ -195,7 +195,7 @@ if __name__ == '__main__':
             drawGrid(screen_HEIGHT, screen_WIDTH, 100, screen, checkedPlaces, tiles)
             pygame.display.flip()
             pygame.display.update()
-                
+
         pygame.quit()
         sys.exit()
 
