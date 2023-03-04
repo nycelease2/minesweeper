@@ -1,10 +1,10 @@
 #!/bin/python3
 
 from collections import Counter
-import pygame, sys, random
+import pygame, sys, random, time
 running = True
 
-def gridPos(mouseposx, mouseposy):
+def gridPos(mouseposx, mouseposy): # converts screen coordinates to game coordinates
     #convert the mouse position to list
     mouseposxLIST = [int(x) for x in str(mouseposx)]
     mouseposyLIST = [int(x) for x in str(mouseposy)]
@@ -88,28 +88,31 @@ def checkplaces(gridMousePos, gridBombs):
     return noOfBombs
 
 def checkIfWon(flagLocations, gridBombs):
-    print(flagLocations)
     gridbombers = {}
+    flagLocationsGrid = {}
     checker = 0
     # making a only bombs dictionary
     for key, value in gridBombs.items():
         if value == 1:
             gridbombers[key] = 1
 
-    #adds 1 to a checker variable each time a flag is correct
-    for key, value in gridbombers.items():
-        for key1, value1 in flagLocations.items():
-            if key == key1:
-                checker += 1
+    #converting the key in flagLocations from world coordinates to game coordinates
+    for key, value in flagLocations.items():
+        flagLocationsGrid[tuple(gridPos(key[0], key[1]))] = 1
 
-    #if the value of checker variable and length of amount of bombs is same then you have won
-    print(checker)
-    print(len(gridbombers))
-    if checker == len(gridbombers):
-        return True
-    else:
+    #checking if the player has won
+    if len(flagLocationsGrid)  != len(gridbombers):
         return False
 
+    for key, value in gridbombers.items():
+        if key not in flagLocationsGrid or flagLocationsGrid[key] != value:
+            return False
+
+    for key, value in flagLocationsGrid.items():
+        if key not in gridbombers or gridbombers[key] != value:
+            return False
+
+    return True
 
 option = input("easy[1], medium[2], hard[3]: ")
 
@@ -157,6 +160,7 @@ if __name__ == '__main__':
         for i in bombLocations:
             gridBombs[tuple(i)] = 1
 
+        start_time = time.time()
         while running:#gameloop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -184,7 +188,15 @@ if __name__ == '__main__':
                             xytuple = (x,y)
                             flagLocations[xytuple] = 1
                             if checkIfWon(flagLocations, gridBombs):
-                                print("you won")
+                                end_time = time.time()
+                                print("you won!")
+                                elapsed_time = end_time-start_time
+                                if elapsed_time > 60:
+                                    elapsed_time_min = elapsed_time//60
+                                    elapsed_time_sec = elapsed_time%60
+                                    print(f"you took {elapsed_time_min} minutes and {round(elapsed_time_sec)} seconds")
+                                else:
+                                    print(f"you took {round(elapsed_time)} seconds")
                                 running = False
                         else:
                             print("you used all flags")
@@ -198,6 +210,4 @@ if __name__ == '__main__':
 
         pygame.quit()
         sys.exit()
-
-
 
