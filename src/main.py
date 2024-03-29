@@ -174,8 +174,9 @@ if __name__ == '__main__':
                             running = False
 
                         elif gridBombs[tuple(gridMousePos)] == 0:
-                            # getting number of bombs around
-                            checkedPlaces[tuple(gridMousePos)] = checkplaces(gridMousePos, gridBombs)
+                                # getting number of bombs around
+                                    checkedPlaces[tuple(gridMousePos)] = checkplaces(gridMousePos, gridBombs)
+
 
                     if event.button == 3:
                         x,y = int(str(gridMousePos[0]-1)+'00'), int(str(gridMousePos[1]-1)+'00')
