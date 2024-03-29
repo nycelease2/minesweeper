@@ -171,8 +171,7 @@ if __name__ == '__main__':
 
                     if event.button == 1:
                         if gridBombs[tuple(gridMousePos)] == 1:
-                            print("you hit a bomb!")
-                            # running = False
+                            running = False
 
                         elif gridBombs[tuple(gridMousePos)] == 0:
                             # getting number of bombs around
